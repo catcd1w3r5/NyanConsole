@@ -1,9 +1,10 @@
 ﻿using Nyan;
-using  ConsoleLibrary;
+using ConsoleLibrary;
+using Nyan.Plugins;
 
 namespace ConsoleUI;
 
-public class ConsoleUi : NyanPlugin, IRequirePlugin<ConsoleLib>
+public sealed class ConsoleUi : NyanPlugin, IRequirePlugin<ConsoleLib>
 {
     public ConsoleUi() : base("com.Catcd.ConsoleUI")
     {
@@ -16,9 +17,15 @@ public class ConsoleUi : NyanPlugin, IRequirePlugin<ConsoleLib>
     protected override Task OnFinalise(NyanBot nyanBot)
     {
         if (!nyanBot.TryGetPlugin<ConsoleLib>(out var consoleLib)) throw new Exception("ConsoleLibrary not found");
-        var commands = NyanBotInstance.Instance.commands;
-        commands.Response += Console.WriteLine;
-        consoleLib.OnMessageReceived += message => commands.CallCommand(message);
+        var commands = BotInstance.Instance.commands;
+        commands.RegisterOutput(msg => Console.WriteLine(msg.ToString()));
+        consoleLib.OnMessageReceived += message =>
+        {
+            var command = message.Split(' ')[0].AsSpan();
+            var args = message.Substring(command.Length + 1).AsSpan();
+            commands.CallCommand(command, args);
+            return Task.CompletedTask;
+        };
         return Task.CompletedTask;
     }
 }

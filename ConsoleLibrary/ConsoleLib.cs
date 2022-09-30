@@ -1,8 +1,9 @@
 ﻿using Nyan;
+using Nyan.Plugins;
 
 namespace ConsoleLibrary;
 
-public class ConsoleLib : NyanPlugin
+public sealed class ConsoleLib : NyanPlugin
 {
     public ConsoleLib() : base("com.Catcd.ConsoleLibrary")
     {
